@@ -51,7 +51,7 @@ const PostView = (props: PostWithUser) => {
         <div className="flex text-slate-300 gap-2">
           <span>{`@${author.username}`}</span> <span className="font-thin">{` · ${dayjs(post.createdAt).fromNow()}`}</span>
         </div>
-        <span>{post.content}</span>
+        <span className="text-2xl">{post.content}</span>
       </div>
     </div>
   );
@@ -84,8 +84,6 @@ const Home: NextPage = () => {
 
   // -> Return emptoy div if both aren't loaded, since user tends to load faster
   if (!userLoaded) return <div></div>;
-
-
 
   return (
     <>
