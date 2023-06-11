@@ -8,13 +8,23 @@ import { type RouterOutputs, api } from "~/utils/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { LoadingPage } from "~/components/loading";
+import { type ChangeEvent, useState } from "react";
 
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const { user } = useUser();
 
-  // console.log(`user obj -> ${JSON.stringify(user, null, 5)}`);
+  const [input, setInput] = useState("");
+
+  const ctx = api.useContext();
+
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.posts.getAll.invalidate();
+    }
+  });
 
   if (!user) return null;
 
@@ -29,7 +39,12 @@ const CreatePostWizard = () => {
       <input
         type="text" placeholder="What's on your mind?"
         className="bg-transparent grow outline-none"
+        // eslint-disable-next-line react/jsx-no-duplicate-props
+        value={input}
+        disabled={isPosting}
+        onChange={(evt: ChangeEvent<HTMLInputElement>) => setInput(evt.target.value)}
       />
+      <button onClick={() => mutate({ content: input })}>Post</button>
     </div>
   );
 };
@@ -42,7 +57,7 @@ const PostView = (props: PostWithUser) => {
   return (
     <div className="p-4 border-b border-slate-400 flex gap-3" key={post.id}>
       <Image
-        width={50} height={50}
+        width={60} height={60}
         src={author.profileImageUrl}
         alt={`@${author.username}'s profile picture`}
         className="rounded-full"
@@ -67,7 +82,7 @@ const Feed = () => {
   return (
     <div className="flex flex-col">
       {
-        [...data, ...data]?.map((fullPost: PostWithUser) => (
+        data.map((fullPost: PostWithUser) => (
           <PostView {...fullPost} key={fullPost.post.id}/>
         ))
       }
