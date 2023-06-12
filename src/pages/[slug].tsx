@@ -5,10 +5,25 @@ import { PageLayout } from "~/components/layout";
 // import Link from "next/link";
 import Image from "next/image";
 import { api } from "~/utils/api";
+import { LoadingPage } from "~/components/loading";
 // import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 // import { appRouter } from "~/server/api/root";
 // import { prisma } from "~/server/db"
 // import superjson from "superjson";
+
+const ProfileFeed = (props: { userId: string }) => {
+  const { data, isLoading } = api.posts.getPostsByUserId.useQuery({ userId: props.userId });
+
+  if (isLoading) return <LoadingPage spinnerSize={40} />;
+
+  if (!data || data.length === 0) return <div>User has not posted yet.</div>;
+  
+  return (
+    <div>
+      
+    </div>
+  );
+}
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 
