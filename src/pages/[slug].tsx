@@ -6,6 +6,7 @@ import { PageLayout } from "~/components/layout";
 import Image from "next/image";
 import { api } from "~/utils/api";
 import { LoadingPage } from "~/components/loading";
+import { PostView } from "~/components/postView";
 // import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 // import { appRouter } from "~/server/api/root";
 // import { prisma } from "~/server/db"
@@ -19,8 +20,14 @@ const ProfileFeed = (props: { userId: string }) => {
   if (!data || data.length === 0) return <div>User has not posted yet.</div>;
   
   return (
-    <div>
-      
+    <div className="flex flex-col">
+      {
+        data ? (
+          data.map((fullPost) => (
+            <PostView key={fullPost.post.id} {...fullPost} />
+          ))
+        ) : undefined
+      }
     </div>
   );
 }
@@ -53,9 +60,8 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         <div className="p-4 text-2xl font-bold">
           {`@${data.username!}`} 
         </div>
-        <div className="border-b border-slate-400 w-full">
-          
-        </div>
+        <div className="border-b border-slate-400 w-full" />
+        <ProfileFeed userId={data.id} />
       </PageLayout>
     </>
   );
