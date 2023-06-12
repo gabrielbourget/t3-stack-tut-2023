@@ -1,33 +1,50 @@
-import { useUser } from "@clerk/nextjs";
-import { type NextPage } from "next";
+// import { useUser } from "@clerk/nextjs";
+import { type GetStaticProps, type NextPage } from "next";
 import Head from "next/head";
-// import Link from "next/link";
-import Image from "next/image";
+import { PageLayout } from "~/components/layout";
 import { api } from "~/utils/api";
+import { PostView } from "~/components/postView";
 
-const SinglePostPage: NextPage = () => {
+const SinglePostPage: NextPage<{ id: string }> = ({ id }) => {
 
-  const { isLoaded: userLoaded, isSignedIn } = useUser();
+  const { data, isLoading } = api.posts.getById.useQuery({ id });
 
-  api.posts.getAll.useQuery();
+  if (isLoading) return <div>Loading...</div>;
 
-  // -> Return emptoy div if both aren't loaded, since user tends to load faster
-  if (!userLoaded) return <div></div>;
+  if (!data) return <div>Problem loading post information...</div>
 
   return (
     <>
       <Head>
-        <title>Post</title>
-        <meta name="description" content="🤔" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>{`${data.post.content} - ${data.author.username}`}</title>
       </Head>
-      <main className="flex justify-center h-screen"> {/* #15162c */}
-        <div>
-          Post View
-        </div>
-      </main>
+      <PageLayout>
+        <PostView {...data} />
+      </PageLayout>
     </>
   );
 };
+
+export const getStaticProps: GetStaticProps = (context) => {
+  const id = context.params?.id;
+
+  if (typeof id !== "string") throw new Error("no id");
+
+  console.log(`post id -> ${id}`)
+
+  // await ssg.profile.getUserByUsername.prefetch({ username });
+
+  return {
+    props: {
+      // trpcState: ssg.dehydrate(),
+      id,
+    },
+  };
+};
+
+export const getStaticPaths = () => ({
+  paths: [],
+  fallback: "blocking"
+});
 
 export default SinglePostPage;

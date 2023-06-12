@@ -57,6 +57,17 @@ export const postsRouter = createTRPCRouter({
     orderBy: [{ createdAt: "desc" }],
   }).then(addUserDataToPosts)),
 
+  getById: publicProcedure.input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+
+      console.log(`in procedure call, post ID is -> ${input.id}`);
+      const post = await ctx.prisma.post.findUnique({ where: { id: input.id }})
+
+      if (!post) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return (await addUserDataToPosts([post]))[0];
+    }),
+
   create: privateProcedure.input(
     z.object({
       content: z.string().emoji("Posts can only contain emojis.").min(1).max(280),
